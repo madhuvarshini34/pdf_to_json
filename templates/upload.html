@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload PDF and Extract Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Upload a PDF File to Extract Data</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".pdf" required id="fileInput" />
+    </form>
+
+    <h2>Extracted Data</h2>
+    <pre id="extractedData"></pre>
+
+    <script>
+        $(document).ready(function() {
+            $('#fileInput').change(function(event) {
+                var formData = new FormData();
+                formData.append('file', event.target.files[0]);
+
+                $.ajax({
+                    url: '/upload/',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#extractedData').text(JSON.stringify(response, null, 2));
+                    },
+                    error: function(xhr, status, error) {
+                        $('#extractedData').text("Error: " + error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
