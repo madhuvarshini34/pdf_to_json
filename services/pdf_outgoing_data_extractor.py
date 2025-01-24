@@ -3,7 +3,7 @@ import re
 import pdfplumber
 from collections import deque
 
-class PDFDataExtractor:
+class OutgoingPDFData:
     def __init__(self, pdf_folder_path: str):
         self.pdf_folder_path = pdf_folder_path
 
@@ -12,7 +12,7 @@ class PDFDataExtractor:
         match = re.search(pattern, line)
         return match.group(group) if match else default
 
-    def extract_all_data_from_pdf(self, pdf_file_name: str):
+    def extract_outgoing_pdf(self, pdf_file_name: str):
         pdf_path = os.path.join(self.pdf_folder_path, pdf_file_name)
 
         # Check if the file exists
@@ -28,41 +28,41 @@ class PDFDataExtractor:
 
         # Regular expressions for fields
         fields = {
-            "Environment": r"Environment:\s+([\w\-]+)",
-            "ABA": r"ABA:\s+(\d+)",
-            "Mode": r"Mode:\s+([\w\-]+)",
-            "Service Unit": r"Service Unit:\s+(\d+)",
-            "Cycle Date": r"Cycle Date:\s+([\d/]+)",
-            "System Date/Time": r"System Date/Time:\s+([\d/: ]+)",
-            "Status": r"Status:\s+([\w\-]+)",
-            "Message Type": r"Message Type:\s+([\w\-]+)",
-            "Create Time": r"Create Time:\s+([\d/: ]+)",
-            "Test/Prod": r"Test/Prod:\s+([\w\-]+)",
-            "IMAD": r"IMAD:\s+([\w\d ]+)",
-            "OMAD": r"OMAD:\s+([\w\d ]+)",
-            "Sender ABA": r"Sender ABA \{\d+\}:\s+(\d+)",
-            "Sender Name": r"Sender ABA \{\d+\}:\s+\d+\s+([\w &]+)",
-            "Receiver ABA": r"Receiver ABA \{\d+\}:\s+(\d+)",
-            "Receiver Name": r"Receiver ABA \{\d+\}:\s+\d+\s+([\w &]+)",
-            "Amount": r"Amount \{\d+\}:\s+([\d.]+)",
-            "Type/Subtype Code": r"Type/Subtype Code \{\d+\}:\s+([\w \-]+)",
-            "Business Function": r"Business Function \{\d+\}:\s+([\w \-]+)",
+            "environment": r"Environment:\s+([\w\-]+)",
+            "aba": r"ABA:\s+(\d+)",
+            "mode": r"Mode:\s+([\w\-]+)",
+            "service_unit": r"Service Unit:\s+(\d+)",
+            "cycle_date": r"Cycle Date:\s+([\d/]+)",
+            "system_date/time": r"System Date/Time:\s+([\d/: ]+)",
+            "status": r"Status:\s+([\w\-]+)",
+            "message_type": r"Message Type:\s+([\w\-]+)",
+            "create_time": r"Create Time:\s+([\d/: ]+)",
+            "test/prod": r"Test/Prod:\s+([\w\-]+)",
+            "imad": r"IMAD:\s+([\w\d ]+)",
+            "omad": r"OMAD:\s+([\w\d ]+)",
+            "sender_aba": r"Sender ABA \{\d+\}:\s+(\d+)",
+            "sender_name": r"Sender ABA \{\d+\}:\s+\d+\s+([\w &]+)",
+            "receiver_aba": r"Receiver ABA \{\d+\}:\s+(\d+)",
+            "receiver_name": r"Receiver ABA \{\d+\}:\s+\d+\s+([\w &]+)",
+            "amount": r"Amount \{\d+\}:\s+([\d.]+)", 
+            "type/subtype_code": r"Type/Subtype Code \{\d+\}:\s+([\w \-]+)",
+            "business_function": r"Business Function \{\d+\}:\s+([\w \-]+)",
         }
 
         originator_fields = {
-            "Originator ID Code": r"ID Code[:\s]+([\w \-]+)",
-            "Originator Identifier": r"Identifier[:\s]+([\w\d]+)",
-            "Originator Name": r"Name[:\s]+([\w ]+)",
-            "Originator Address": r"Address[:\s]+([^\n]+)",
+            "originator_id_code": r"ID Code[:\s]+([\w \-]+)",
+            "originator_identifier": r"Identifier[:\s]+([\w\d]+)",
+            "originator_name": r"Name[:\s]+([\w ]+)",
+            "originator_address": r"Address[:\s]+([^\n]+)",
         }
 
         beneficiary_fields = {
-            "Beneficiary ID Code": r"ID Code[:\s]+([\w \-]+)",
-            "Beneficiary Identifier": r"Identifier[:\s]+([\w\d]+)",
-            "Beneficiary Name": r"Name[:\s]+([\w ]+)",
-            "Beneficiary Address": r"Address[:\s]+([^\n]+)",
+            "beneficiary_id_code": r"ID Code[:\s]+([\w \-]+)",
+            "beneficiary_identifier": r"Identifier[:\s]+([\w\d]+)",
+            "beneficiary_name": r"Name[:\s]+([\w ]+)",
+            "beneficiary_address": r"Address[:\s]+([^\n]+)",
         }
-
+    
         extracted_data = {}
         current_group = None
 
@@ -81,7 +81,10 @@ class PDFDataExtractor:
             for field_name, pattern in fields.items():
                 value = self.safe_search(pattern, line)
                 if value != "Unknown":
-                    extracted_data[field_name] = value
+                    if field_name == "amount":  # Convert amount to float
+                        extracted_data[field_name] = float(value)
+                    else:
+                        extracted_data[field_name] = value
 
             # Originator fields
             if current_group == "Originator":
