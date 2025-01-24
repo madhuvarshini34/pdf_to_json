@@ -99,7 +99,7 @@ This function performs a safe search using regular expressions. It attempts to m
 **Returns:**
 - The matched group or the default value.
 
-### `extract_all_data_from_pdf(pdf_path)`
+### `extract_outgoing_data(pdf_path)`
 
 This function is responsible for extracting all relevant data from the PDF file located at `pdf_path`. It processes the entire PDF content, applies the regular expressions to extract the desired fields, and returns a flat dictionary of extracted data.
 
@@ -109,7 +109,18 @@ This function is responsible for extracting all relevant data from the PDF file 
 **Returns:**
 - A dictionary containing the extracted data, including fields like `Environment`, `ABA`, `Amount`, `Originator Name`, and more.
 
-### `extract_pdf_data(pdf_file_name: str)`
+### `extract_incoming_data(pdf_path)`
+
+This function is responsible for extracting all relevant data from the PDF file located at `pdf_path`. It processes the entire PDF content, applies the regular expressions to extract the desired fields, and returns a flat dictionary of extracted data.
+
+**Parameters:**
+- `pdf_path`: The path to the PDF file from which data is to be extracted.
+
+**Returns:**
+- A dictionary containing the extracted data, including fields like `Environment`, `ABA`, `Amount`, `Originator Name`, and more.
+
+
+### `extract_statement_data(pdf_file_name: str)`
 
 This is the FastAPI endpoint that receives the name of a PDF file, processes it using `extract_all_data_from_pdf()`, and returns the extracted data as JSON.
 
